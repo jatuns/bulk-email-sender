@@ -1,5 +1,4 @@
 .env
 *.pdf
-liste.txt
 __pycache__/
 *.pyc

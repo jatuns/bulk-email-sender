@@ -1,138 +1,107 @@
-# Otomatik Mail Gönderme Scripti
+# Bulk Email Sender
 
-Bu script, bir alıcı listesine toplu e-posta göndermenizi sağlar. Staj başvurusu, iş başvurusu veya herhangi bir toplu mail ihtiyacı için kullanılabilir.
-
----
-
-## Gereksinimler
-
-- Python 3.8 veya üzeri
-- Gmail hesabı + **App Password** (normal şifre çalışmaz)
+Gmail SMTP ile toplu mail gönderme scripti. CV veya herhangi bir dosyayı ek olarak gönderebilir, kişiselleştirilmiş mesaj yazabilirsiniz.
 
 ---
 
-## Kurulum
+## Hızlı Başlangıç
 
 ### 1. Repoyu klonla
 
 ```bash
-git clone https://github.com/KULLANICI_ADI/REPO_ADI.git
-cd REPO_ADI
+git clone https://github.com/jatuns/bulk-email-sender.git
+cd bulk-email-sender
 ```
 
-### 2. (Opsiyonel) Virtual environment oluştur
-
-```bash
-python -m venv venv
-source venv/bin/activate        # macOS / Linux
-venv\Scripts\activate           # Windows
-```
-
-### 3. `python-dotenv` kütüphanesini yükle
+### 2. Bağımlılığı yükle
 
 ```bash
 pip install python-dotenv
 ```
 
-> Script dotenv olmadan da çalışabilir, ama `.env` dosyasını okumak için bu kütüphane gereklidir.
+### 3. `.env` dosyasını oluştur
 
----
+```bash
+cp .env.example .env
+```
 
-## Gmail App Password Nasıl Alınır?
-
-Normal Gmail şifreniz bu script için **çalışmaz**. Google'ın 2 adımlı doğrulama sistemine özel bir "App Password" oluşturmanız gerekir.
-
-1. [myaccount.google.com](https://myaccount.google.com) adresine git
-2. Sol menüden **Güvenlik** sekmesini aç
-3. **2 Adımlı Doğrulama**'yı etkinleştir (etkin değilse)
-4. Arama kutusuna **"App passwords"** yaz ve tıkla
-5. Uygulama adı olarak istediğinizi yazın (örn. `mail-script`) ve **Create** butonuna tıklayın
-6. Çıkan **16 haneli şifreyi** kopyalayın (boşluklu gösterilir, olduğu gibi kullanabilirsiniz)
-
----
-
-## Yapılandırma
-
-### 4. `.env` dosyası oluştur
-
-Proje klasörünün içinde `.env` adında bir dosya oluştur ve aşağıdaki bilgileri gir:
+`.env` dosyasını aç ve kendi bilgilerini gir:
 
 ```
 GONDEREN_EMAIL=senin@gmail.com
 GMAIL_APP_SIFRE=xxxx xxxx xxxx xxxx
 ```
 
-> `.env` dosyası `.gitignore`'a eklenmiştir, GitHub'a **yüklenmez**.
+> App Password için aşağıdaki bölüme bak.
 
-### 5. `mail_gonder.py` içindeki ayarları düzenle
+### 4. Alıcı listeni oluştur
 
-Dosyanın üst kısmındaki sabit değerleri kendinize göre güncelleyin:
-
-| Değişken | Açıklama |
-|---|---|
-| `KONU` | E-posta konu satırı |
-| `ICERIK` | E-posta gövdesi (istediğiniz dili/metni yazabilirsiniz) |
-| `LISTE_DOSYASI` | Alıcı e-posta adreslerini içeren dosyanın adı |
-| `CV_DOSYASI` | Eklemek istediğiniz PDF dosyasının adı (yoksa ek gönderilmez) |
-| `BASLANGIC` | Listede kaçıncı adresten başlanacak (0 = baştan) |
-| `BITIS` | Listede kaçıncı adrese kadar gidilecek |
-| `GECIKME_SN` | Her mail arasındaki bekleme süresi (saniye) |
-
-### 6. Alıcı listesini hazırla
-
-`liste.txt` adında bir dosya oluştur; her satıra bir e-posta adresi yaz:
-
-```
-hr@firma1.com
-info@firma2.com
-kariyer@firma3.com
+```bash
+cp liste.txt.example liste.txt
 ```
 
-### 7. (Opsiyonel) PDF ekini yerleştir
+`liste.txt` dosyasını aç ve mail göndermek istediğin adresleri yaz (her satıra bir adres):
 
-Eğer bir dosya eklemek istiyorsanız, PDF'i proje klasörüne koyun ve `CV_DOSYASI` değişkenini dosya adıyla güncelleyin.
+```
+hr@sirket1.com
+kariyer@sirket2.com
+```
 
----
+### 5. CV veya ek dosyayı ekle
 
-## Çalıştırma
+PDF dosyasını proje klasörüne koy. `mail_gonder.py` içinde `CV_DOSYASI` değişkenini dosya adınla güncelle.
+
+### 6. Mail içeriğini yaz
+
+`mail_gonder.py` dosyasını aç, `KONU` ve `ICERIK` değişkenlerini kendinize göre düzenle.
+
+### 7. Çalıştır
 
 ```bash
 python mail_gonder.py
 ```
 
-Çıktı şu şekilde görünür:
+---
 
-```
-Gönderilecek: 400 mail (0–400)
+## Gmail App Password Nasıl Alınır?
 
-[1/400] ✓  hr@firma1.com
-[2/400] ✓  kariyer@firma2.com
-[3/400] ✗  hataliadres@firma3  →  ...hata mesajı...
-...
-Bitti. 0–400 aralığı tamamlandı.
-```
+Normal Gmail şifresi çalışmaz. Google'a özel bir App Password gereklidir.
+
+1. [myaccount.google.com](https://myaccount.google.com) → **Güvenlik**
+2. **2 Adımlı Doğrulama**'yı etkinleştir
+3. Arama kutusuna **"App passwords"** yaz → tıkla
+4. Uygulama adı gir (örn. `mail-script`) → **Create**
+5. Çıkan **16 haneli şifreyi** `.env` dosyasına kopyala
 
 ---
 
-## Büyük Listeler için Toplu Gönderim (Gmail Limiti)
+## Büyük Listeler (Gmail Günlük Limiti ~500)
 
-Gmail günlük ~500 mail gönderme limitine sahiptir. Listeyi birden fazla günde göndermeye bölmek için `BASLANGIC` ve `BITIS` değerlerini değiştirin:
+`mail_gonder.py` içindeki `BASLANGIC` ve `BITIS` değerleriyle listeyi günlere böl:
 
 | Gün | BASLANGIC | BITIS |
-|---|---|---|
-| 1. Gün | 0 | 400 |
-| 2. Gün | 400 | 782 |
+|-----|-----------|-------|
+| 1   | 0         | 400   |
+| 2   | 400       | 800   |
 
 ---
 
 ## Proje Yapısı
 
 ```
-mail-automation/
-├── mail_gonder.py   # Ana script
-├── liste.txt        # Alıcı listesi (gitignore'da)
-├── CV.pdf           # Ek dosya (gitignore'da)
-├── .env             # Gizli bilgiler (gitignore'da, paylaşma!)
+bulk-email-sender/
+├── mail_gonder.py       # Ana script — konu, içerik ve ayarlar burada
+├── liste.txt.example    # Alıcı listesi formatı (bunu liste.txt olarak kopyala)
+├── .env.example         # Gizli bilgi şablonu (bunu .env olarak kopyala)
 ├── .gitignore
+├── LICENSE
 └── README.md
 ```
+
+> `.env` ve `liste.txt` gitignore'dadır — GitHub'a yüklenmez.
+
+---
+
+## Lisans
+
+MIT © [Barış Tuna Tuğrul](https://github.com/jatuns)
