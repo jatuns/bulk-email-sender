@@ -1,6 +1,7 @@
 import json
 import os
 import platform
+import re
 import smtplib
 import sys
 import threading
@@ -26,6 +27,8 @@ else:
     def _fb(size): return (_UI_B, size)
     def _fm(size): return (_MONO, size)
 
+
+_EMAIL_RE = re.compile(r"^[^@\s]+@[^@\s]+\.[^@\s]+$")
 
 BASE_DIR = Path(sys.executable if getattr(sys, "frozen", False) else __file__).resolve().parent
 SETTINGS_FILE = BASE_DIR / "settings.json"
@@ -76,7 +79,8 @@ def load_settings():
     if SETTINGS_FILE.exists():
         try:
             saved = json.loads(SETTINGS_FILE.read_text(encoding="utf-8"))
-            settings.update(saved)
+            known = set(settings.keys())
+            settings.update({k: v for k, v in saved.items() if k in known})
         except (OSError, json.JSONDecodeError):
             pass
     return settings
@@ -88,17 +92,14 @@ def save_settings(settings):
 
 def read_recipients(path):
     with open(path, encoding="utf-8") as file:
-        return [line.strip() for line in file if line.strip() and "@" in line]
+        return [line.strip() for line in file if _EMAIL_RE.match(line.strip())]
 
 
 LIMIT_ERROR_KEYWORDS = (
     "daily user sending limit exceeded",
     "user-rate limit exceeded",
-    "rate limit",
-    "quota",
-    "limit",
-    "too many",
-    "try again later",
+    "rate limit exceeded",
+    "sending limit exceeded",
     "4.7.0",
     "5.4.5",
 )
@@ -135,7 +136,7 @@ def create_message(job, recipient):
             part.set_payload(file.read())
         encoders.encode_base64(part)
         filename = os.path.basename(job.cv_file)
-        part.add_header("Content-Disposition", f'attachment; filename="{filename}"')
+        part.add_header("Content-Disposition", "attachment", filename=filename)
         msg.attach(part)
 
     return msg
@@ -655,12 +656,18 @@ Hazırsan Gönderimi Başlat butonuna basabilirsin."""
             raise ValueError("Mail içeriği boş olamaz.")
         if not os.path.exists(settings["list_file"]):
             raise ValueError("Mail listesi bulunamadı.")
+        recipients = read_recipients(settings["list_file"])
+        if not recipients:
+            raise ValueError("Mail listesi boş veya geçerli adres içermiyor.")
+        if settings["start_index"] >= len(recipients):
+            raise ValueError(f"Başlangıç indeksi ({settings['start_index']}) liste boyutunu aşıyor ({len(recipients)} kayıt).")
         if settings["cv_file"] and not os.path.exists(settings["cv_file"]):
             raise ValueError("CV dosyası bulunamadı.")
         if settings["start_index"] < 0 or settings["end_index"] <= settings["start_index"]:
             raise ValueError("Başlangıç ve bitiş aralığı geçersiz.")
 
     def start_sending(self):
+        self.send_button.configure(state="disabled")
         if self.worker and self.worker.is_alive():
             return
         try:
@@ -670,6 +677,7 @@ Hazırsan Gönderimi Başlat butonuna basabilirsin."""
             job = MailJob(**settings)
         except Exception as exc:
             messagebox.showerror("Başlatılamadı", str(exc))
+            self.send_button.configure(state="normal")
             return
 
         self.stop_event.clear()
@@ -702,6 +710,11 @@ Hazırsan Gönderimi Başlat butonuna basabilirsin."""
             total = len(targets)
             self.ui(lambda: self.target_count.set(str(total)))
             self.ui(lambda: self.log(f"Gönderilecek mail: {total} ({job.start_index}-{job.end_index})"))
+
+            if total == 0:
+                self.ui(lambda: self.update_progress(100, 0, 0, job.start_index))
+                self.ui(lambda: self.log("Gönderilecek mail yok. Başlangıç indeksini kontrol edin."))
+                return
 
             with smtplib.SMTP_SSL("smtp.gmail.com", 465) as server:
                 server.login(job.sender_email, job.app_password)
