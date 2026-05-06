@@ -1,5 +1,6 @@
 import json
 import os
+import platform
 import smtplib
 import sys
 import threading
@@ -12,6 +13,18 @@ from email.mime.multipart import MIMEMultipart
 from email.mime.text import MIMEText
 from pathlib import Path
 from tkinter import filedialog, messagebox, ttk
+
+_SYS = platform.system()
+if _SYS == "Darwin":
+    _UI, _UI_B, _MONO = "Helvetica Neue", "Helvetica Neue", "Menlo"
+    def _f(size): return (_UI, size)
+    def _fb(size): return (_UI_B, size, "bold")
+    def _fm(size): return (_MONO, size)
+else:
+    _UI, _UI_B, _MONO = "Segoe UI", "Segoe UI Semibold", "Cascadia Mono"
+    def _f(size): return (_UI, size)
+    def _fb(size): return (_UI_B, size)
+    def _fm(size): return (_MONO, size)
 
 
 BASE_DIR = Path(sys.executable if getattr(sys, "frozen", False) else __file__).resolve().parent
@@ -150,12 +163,12 @@ class BulkMailDashboard(tk.Tk):
         style.theme_use("clam")
         style.configure("TFrame", background="#eef2f6")
         style.configure("Panel.TFrame", background="#ffffff", relief="flat")
-        style.configure("TLabel", background="#eef2f6", foreground="#172033", font=("Segoe UI", 10))
-        style.configure("Panel.TLabel", background="#ffffff", foreground="#172033", font=("Segoe UI", 10))
-        style.configure("Muted.TLabel", background="#ffffff", foreground="#68768a", font=("Segoe UI", 9))
-        style.configure("Title.TLabel", background="#eef2f6", foreground="#0f172a", font=("Segoe UI Semibold", 19))
-        style.configure("Subtitle.TLabel", background="#eef2f6", foreground="#68768a", font=("Segoe UI", 10))
-        style.configure("Metric.TLabel", background="#ffffff", foreground="#0f172a", font=("Segoe UI Semibold", 21))
+        style.configure("TLabel", background="#eef2f6", foreground="#172033", font=_f(10))
+        style.configure("Panel.TLabel", background="#ffffff", foreground="#172033", font=_f(10))
+        style.configure("Muted.TLabel", background="#ffffff", foreground="#68768a", font=_f(9))
+        style.configure("Title.TLabel", background="#eef2f6", foreground="#0f172a", font=_fb(19))
+        style.configure("Subtitle.TLabel", background="#eef2f6", foreground="#68768a", font=_f(10))
+        style.configure("Metric.TLabel", background="#ffffff", foreground="#0f172a", font=_fb(21))
         style.configure("TEntry", fieldbackground="#f8fafc", bordercolor="#d9e2ec", lightcolor="#d9e2ec", darkcolor="#d9e2ec", padding=8)
         style.configure("TSpinbox", fieldbackground="#f8fafc", bordercolor="#d9e2ec", lightcolor="#d9e2ec", darkcolor="#d9e2ec", padding=7)
         style.configure("Horizontal.TProgressbar", troughcolor="#dfe7f0", background="#1f7a5c", bordercolor="#dfe7f0", lightcolor="#1f7a5c", darkcolor="#1f7a5c")
@@ -241,7 +254,7 @@ class BulkMailDashboard(tk.Tk):
     def _button(self, parent, text, command, variant="primary", state="normal"):
         palette = {
             "primary": ("#176b50", "#ffffff", "#135b44"),
-            "secondary": ("#172033", "#ffffff", "#0f172a"),
+            "secondary": ("#172033", "#000000", "#0f172a"),
             "danger": ("#c24141", "#ffffff", "#a83232"),
             "ghost": ("#e7edf4", "#172033", "#d8e1ec"),
         }
@@ -259,7 +272,7 @@ class BulkMailDashboard(tk.Tk):
             bd=0,
             relief="flat",
             cursor="hand2",
-            font=("Segoe UI Semibold", 10),
+            font=_fb(10),
             padx=14,
             pady=9,
         )
@@ -267,11 +280,11 @@ class BulkMailDashboard(tk.Tk):
     def _build_settings_panel(self, parent):
         parent.columnconfigure(1, weight=1)
 
-        ttk.Label(parent, text="Gönderici", style="Panel.TLabel", font=("Segoe UI Semibold", 12)).grid(row=0, column=0, columnspan=3, sticky="w", pady=(0, 12))
+        ttk.Label(parent, text="Gönderici", style="Panel.TLabel", font=_fb(12)).grid(row=0, column=0, columnspan=3, sticky="w", pady=(0, 12))
         self._entry(parent, "Gmail", self.sender_email, 1)
         self._entry(parent, "Uygulama şifresi", self.app_password, 2, show="*")
 
-        ttk.Label(parent, text="Dosyalar", style="Panel.TLabel", font=("Segoe UI Semibold", 12)).grid(row=3, column=0, columnspan=3, sticky="w", pady=(18, 12))
+        ttk.Label(parent, text="Dosyalar", style="Panel.TLabel", font=_fb(12)).grid(row=3, column=0, columnspan=3, sticky="w", pady=(18, 12))
         self._file_row(parent, "Mail listesi", self.list_file, 4, [("Text files", "*.txt"), ("All files", "*.*")])
         self._file_row(parent, "CV eki", self.cv_file, 5, [("PDF files", "*.pdf"), ("All files", "*.*")])
         list_tools = ttk.Frame(parent, style="Panel.TFrame")
@@ -281,7 +294,7 @@ class BulkMailDashboard(tk.Tk):
         self._button(list_tools, "Mail Listesini Düzenle", self.open_list_editor, "secondary").grid(row=0, column=0, sticky="ew", padx=(0, 6))
         self._button(list_tools, "Dosyayı Yenile", self.refresh_summary, "ghost").grid(row=0, column=1, sticky="ew", padx=(6, 0))
 
-        ttk.Label(parent, text="Gönderim", style="Panel.TLabel", font=("Segoe UI Semibold", 12)).grid(row=7, column=0, columnspan=3, sticky="w", pady=(18, 12))
+        ttk.Label(parent, text="Gönderim", style="Panel.TLabel", font=_fb(12)).grid(row=7, column=0, columnspan=3, sticky="w", pady=(18, 12))
         self._spin(parent, "Başlangıç", self.start_index, 8, 0, 100000)
         self._spin(parent, "Bitiş", self.end_index, 9, 1, 100000)
         self._spin(parent, "Gecikme sn", self.delay_seconds, 10, 0, 3600, increment=0.5)
@@ -299,10 +312,10 @@ class BulkMailDashboard(tk.Tk):
         ttk.Progressbar(parent, variable=self.progress_value, maximum=100).grid(row=13, column=0, columnspan=3, sticky="ew", pady=(8, 0))
 
     def _build_message_panel(self, parent):
-        ttk.Label(parent, text="Konu", style="Panel.TLabel", font=("Segoe UI Semibold", 12)).grid(row=0, column=0, sticky="w")
+        ttk.Label(parent, text="Konu", style="Panel.TLabel", font=_fb(12)).grid(row=0, column=0, sticky="w")
         ttk.Entry(parent, textvariable=self.subject).grid(row=1, column=0, sticky="ew", pady=(8, 14))
 
-        ttk.Label(parent, text="Mail içeriği", style="Panel.TLabel", font=("Segoe UI Semibold", 12)).grid(row=2, column=0, sticky="w")
+        ttk.Label(parent, text="Mail içeriği", style="Panel.TLabel", font=_fb(12)).grid(row=2, column=0, sticky="w")
         body_frame = ttk.Frame(parent, style="Panel.TFrame")
         body_frame.grid(row=3, column=0, sticky="nsew", pady=(8, 14))
         body_frame.rowconfigure(0, weight=1)
@@ -310,7 +323,7 @@ class BulkMailDashboard(tk.Tk):
         self.body_text = tk.Text(
             body_frame,
             wrap="word",
-            font=("Segoe UI", 10),
+            font=_f(10),
             bg="#f8fafc",
             fg="#172033",
             insertbackground="#176b50",
@@ -328,7 +341,7 @@ class BulkMailDashboard(tk.Tk):
         scrollbar.grid(row=0, column=1, sticky="ns")
         self.body_text.configure(yscrollcommand=scrollbar.set)
 
-        ttk.Label(parent, text="Gönderim günlüğü", style="Panel.TLabel", font=("Segoe UI Semibold", 12)).grid(row=4, column=0, sticky="w")
+        ttk.Label(parent, text="Gönderim günlüğü", style="Panel.TLabel", font=_fb(12)).grid(row=4, column=0, sticky="w")
         log_frame = ttk.Frame(parent, style="Panel.TFrame")
         log_frame.grid(row=5, column=0, sticky="nsew", pady=(8, 0))
         log_frame.rowconfigure(0, weight=1)
@@ -337,7 +350,7 @@ class BulkMailDashboard(tk.Tk):
             log_frame,
             height=10,
             wrap="word",
-            font=("Cascadia Mono", 9),
+            font=_fm(9),
             bg="#0f172a",
             fg="#dbeafe",
             insertbackground="#ffffff",
@@ -394,7 +407,7 @@ class BulkMailDashboard(tk.Tk):
         text = tk.Text(
             panel,
             wrap="word",
-            font=("Segoe UI", 10),
+            font=_f(10),
             bg="#f8fafc",
             fg="#172033",
             bd=0,
@@ -551,7 +564,7 @@ Hazırsan Gönderimi Başlat butonuna basabilirsin."""
         text = tk.Text(
             body,
             wrap="none",
-            font=("Cascadia Mono", 10),
+            font=_fm(10),
             bg="#f8fafc",
             fg="#172033",
             insertbackground="#176b50",
