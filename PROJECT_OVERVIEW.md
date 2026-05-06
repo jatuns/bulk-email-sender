@@ -45,7 +45,7 @@ Kullanılan temel modüller:
 ```text
 bulk-email-sender/
 ├── dist/
-│   └── BulkMailDashboard_v4.exe
+│   └── BulkMailDashboard_windows.exe
 ├── examples/
 │   └── liste.example.txt
 ├── scripts/
@@ -78,7 +78,7 @@ Bu dosyada:
 - Mail listesi düzenleme penceresi açılır.
 - “Nasıl Kullanılır?” rehberi gösterilir.
 
-### `dist/BulkMailDashboard_v4.exe`
+### `dist/BulkMailDashboard_windows.exe`
 
 Son kullanıcı için hazırlanmış Windows uygulamasıdır.
 
@@ -100,7 +100,7 @@ hr@example.com
 
 Kodda değişiklik yaptıktan sonra yeni exe oluşturmak için kullanılan PowerShell scriptidir.
 
-Çalıştırıldığında `mail_gonder.py` dosyasını PyInstaller ile paketler ve `dist/BulkMailDashboard_v4.exe` dosyasını üretir.
+Çalıştırıldığında `mail_gonder.py` dosyasını PyInstaller ile paketler ve `dist/BulkMailDashboard_windows.exe` dosyasını üretir.
 
 ### `requirements.txt`
 
@@ -263,7 +263,7 @@ Yeni exe oluşturmak için:
 veya:
 
 ```powershell
-.\.venv\Scripts\python.exe -m PyInstaller --noconfirm --onefile --windowed --name BulkMailDashboard_v4 mail_gonder.py
+.\.venv\Scripts\python.exe -m PyInstaller --noconfirm --onefile --windowed --name BulkMailDashboard_windows mail_gonder.py
 ```
 
 ## GitHub İçin Önerilen Commit İçeriği
@@ -280,7 +280,7 @@ GitHub’a eklenmesi uygun dosyalar:
 - `LICENSE`
 - `examples/liste.example.txt`
 - `scripts/build_exe.ps1`
-- `dist/BulkMailDashboard_v4.exe`
+- `dist/BulkMailDashboard_windows.exe`
 
 GitHub’a eklenmemesi gereken dosyalar:
 

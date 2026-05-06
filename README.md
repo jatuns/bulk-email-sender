@@ -29,7 +29,7 @@ Uygulama ile mail listesi seçebilir, listeyi uygulama içinden düzenleyebilir,
 **Windows** — hazır exe dosyasını çift tıklayarak açın:
 
 ```text
-dist/BulkMailDashboard_v4.exe
+dist/BulkMailDashboard_windows.exe
 ```
 
 **macOS** — hazır uygulama paketini çift tıklayarak veya terminal ile açın:
@@ -116,7 +116,7 @@ macOS build scripti otomatik olarak sanal ortam oluşturur, bağımlılıkları 
 ```text
 bulk-email-sender/
 ├── dist/
-│   ├── BulkMailDashboard_v4.exe   # Windows
+│   ├── BulkMailDashboard_windows.exe   # Windows
 │   └── BulkMailDashboard.app      # macOS
 ├── examples/
 │   └── liste.example.txt
@@ -164,7 +164,7 @@ You can select a recipient list, edit it directly within the app, update the sub
 **Windows** — double-click the ready-to-use executable:
 
 ```text
-dist/BulkMailDashboard_v4.exe
+dist/BulkMailDashboard_windows.exe
 ```
 
 **macOS** — double-click or open from the terminal:
@@ -251,7 +251,7 @@ The macOS build script automatically creates a virtual environment, installs dep
 ```text
 bulk-email-sender/
 ├── dist/
-│   ├── BulkMailDashboard_v4.exe   # Windows
+│   ├── BulkMailDashboard_windows.exe   # Windows
 │   └── BulkMailDashboard.app      # macOS
 ├── examples/
 │   └── liste.example.txt
