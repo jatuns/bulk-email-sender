@@ -673,7 +673,6 @@ Hazırsan Gönderimi Başlat butonuna basabilirsin."""
         try:
             settings = self.collect_settings()
             self.validate_job(settings)
-            save_settings(settings)
             job = MailJob(**settings)
         except Exception as exc:
             messagebox.showerror("Başlatılamadı", str(exc))
@@ -748,6 +747,14 @@ Hazırsan Gönderimi Başlat butonuna basabilirsin."""
                 self.ui(lambda: self.status_text.set("Limit nedeniyle durdu"))
             else:
                 self.ui(lambda: self.status_text.set("Tamamlandı" if not self.stop_event.is_set() else "Durduruldu"))
+
+            if sent > 0:
+                try:
+                    persisted = load_settings()
+                    persisted["start_index"] = job.start_index + sent
+                    save_settings(persisted)
+                except Exception:
+                    pass
         except Exception as exc:
             self.ui(lambda e=exc: messagebox.showerror("Gönderim hatası", str(e)))
             self.ui(lambda e=exc: self.status_text.set(f"Hata: {e}"))
