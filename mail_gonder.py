@@ -67,7 +67,7 @@ def default_settings():
         "subject": DEFAULT_SUBJECT,
         "body": DEFAULT_BODY,
         "list_file": str(BASE_DIR / "liste.txt"),
-        "cv_file": str(BASE_DIR / "ArdaOzkanCV.pdf"),
+        "cv_file": str(BASE_DIR / "cv.pdf"),
         "start_index": 0,
         "end_index": 400,
         "delay_seconds": 2,
