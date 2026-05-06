@@ -17,6 +17,7 @@ build/
 dist/*
 !dist/
 !dist/BulkMailDashboard_v4.exe
+!dist/BulkMailDashboard_mac.zip
 
 .DS_Store
 Thumbs.db
