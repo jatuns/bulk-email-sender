@@ -10,7 +10,7 @@
 
 Gmail SMTP üzerinden toplu mail göndermeyi kolaylaştıran masaüstü dashboard uygulaması. **Windows ve macOS** üzerinde çalışır.
 
-Uygulama ile mail listesi seçebilir, listeyi uygulama içinden düzenleyebilir, konu ve mail içeriğini güncelleyebilir, CV/PDF eki seçebilir, gönderim aralığını belirleyebilir ve gönderim durumunu canlı olarak takip edebilirsiniz.
+Uygulama ile mail listesi seçebilir, listeyi uygulama içinden düzenleyebilir, konu ve mail içeriğini güncelleyebilir, CV/PDF eki seçebilir, ek olarak birden fazla portfolyo PDF'i ekleyebilir, gönderim aralığını belirleyebilir ve gönderim durumunu canlı olarak takip edebilirsiniz.
 
 ### Özellikler
 
@@ -18,6 +18,7 @@ Uygulama ile mail listesi seçebilir, listeyi uygulama içinden düzenleyebilir,
 - Gmail uygulama şifresi ile SMTP gönderimi
 - `.txt` mail listesi seçme ve uygulama içinde düzenleme
 - PDF/CV eki seçme
+- Birden fazla portfolyo PDF'i ekleme (sertifika, referans mektubu vb.)
 - Konu ve mail içeriğini arayüzden güncelleme
 - Başlangıç/bitiş index aralığı ile parça parça gönderim
 - Gönderilen, hatalı, son index ve limit indexi göstergeleri
@@ -40,7 +41,7 @@ open dist/BulkMailDashboard.app
 2. Gmail uygulama şifrenizi girin.
 3. Mail listenizi `.txt` dosyası olarak seçin.
 4. Gerekirse `Mail Listesini Düzenle` butonu ile listeyi güncelleyin.
-5. CV/PDF dosyanızı seçin.
+5. CV/PDF dosyanızı seçin. İsterseniz `Portfolyo ekleri` bölümünden ek PDF'ler de ekleyebilirsiniz.
 6. Konu ve mail içeriğini düzenleyin.
 7. Başlangıç ve bitiş indexlerini belirleyin.
 8. `Ayarları Kaydet` butonuna basın.
@@ -140,7 +141,7 @@ MIT
 
 A desktop dashboard application for sending bulk emails via Gmail SMTP. Works on **Windows and macOS**.
 
-You can select a recipient list, edit it directly within the app, update the subject and body, attach a PDF/CV, set a sending range, and monitor the sending progress in real time.
+You can select a recipient list, edit it directly within the app, update the subject and body, attach a PDF/CV, add multiple portfolio PDFs, set a sending range, and monitor the sending progress in real time.
 
 ### Features
 
@@ -148,6 +149,7 @@ You can select a recipient list, edit it directly within the app, update the sub
 - Gmail SMTP sending via app password
 - Select and edit a `.txt` recipient list within the app
 - PDF/CV attachment support
+- Multiple portfolio PDFs (certificates, reference letters, etc.)
 - Update subject and body from the UI
 - Send in chunks using start/end index ranges
 - Live counters for sent, failed, last index, and limit index
@@ -170,7 +172,7 @@ First-time setup:
 2. Enter your Gmail app password.
 3. Select your recipient list as a `.txt` file.
 4. Optionally edit the list using the `Edit Mail List` button.
-5. Select your PDF/CV file.
+5. Select your PDF/CV file. Optionally, add extra PDFs via the `Portfolio attachments` section.
 6. Edit the subject and message body.
 7. Set the start and end index range.
 8. Click `Save Settings`.
