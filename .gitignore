@@ -16,7 +16,6 @@ build/
 
 dist/*
 !dist/
-!dist/BulkMailDashboard_windows.exe
 !dist/BulkMailDashboard_mac.zip
 
 .DS_Store

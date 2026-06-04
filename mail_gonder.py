@@ -68,6 +68,7 @@ def default_settings():
         "body": DEFAULT_BODY,
         "list_file": str(BASE_DIR / "liste.txt"),
         "cv_file": str(BASE_DIR / "cv.pdf"),
+        "portfolio_files": [],
         "start_index": 0,
         "end_index": 400,
         "delay_seconds": 2,
@@ -118,6 +119,7 @@ class MailJob:
     body: str
     list_file: str
     cv_file: str
+    portfolio_files: list
     start_index: int
     end_index: int
     delay_seconds: float
@@ -130,13 +132,19 @@ def create_message(job, recipient):
     msg["Subject"] = job.subject
     msg.attach(MIMEText(job.body, "plain", "utf-8"))
 
-    if job.cv_file and os.path.exists(job.cv_file):
-        with open(job.cv_file, "rb") as file:
+    attachments = []
+    if job.cv_file:
+        attachments.append(job.cv_file)
+    attachments.extend(job.portfolio_files or [])
+
+    for path in attachments:
+        if not path or not os.path.exists(path):
+            continue
+        with open(path, "rb") as file:
             part = MIMEBase("application", "octet-stream")
             part.set_payload(file.read())
         encoders.encode_base64(part)
-        filename = os.path.basename(job.cv_file)
-        part.add_header("Content-Disposition", "attachment", filename=filename)
+        part.add_header("Content-Disposition", "attachment", filename=os.path.basename(path))
         msg.attach(part)
 
     return msg
@@ -190,6 +198,7 @@ class BulkMailDashboard(tk.Tk):
         self.subject = tk.StringVar(value=self.settings["subject"])
         self.list_file = tk.StringVar(value=self.settings["list_file"])
         self.cv_file = tk.StringVar(value=self.settings["cv_file"])
+        self.portfolio_files = list(self.settings.get("portfolio_files") or [])
         self.start_index = tk.IntVar(value=int(self.settings["start_index"]))
         self.end_index = tk.IntVar(value=int(self.settings["end_index"]))
         self.delay_seconds = tk.DoubleVar(value=float(self.settings["delay_seconds"]))
@@ -288,20 +297,22 @@ class BulkMailDashboard(tk.Tk):
         ttk.Label(parent, text="Dosyalar", style="Panel.TLabel", font=_fb(12)).grid(row=3, column=0, columnspan=3, sticky="w", pady=(18, 12))
         self._file_row(parent, "Mail listesi", self.list_file, 4, [("Text files", "*.txt"), ("All files", "*.*")])
         self._file_row(parent, "CV eki", self.cv_file, 5, [("PDF files", "*.pdf"), ("All files", "*.*")])
+        self._portfolio_row(parent, 6)
+
         list_tools = ttk.Frame(parent, style="Panel.TFrame")
-        list_tools.grid(row=6, column=0, columnspan=3, sticky="ew", pady=(8, 4))
+        list_tools.grid(row=7, column=0, columnspan=3, sticky="ew", pady=(8, 4))
         list_tools.columnconfigure(0, weight=1)
         list_tools.columnconfigure(1, weight=1)
         self._button(list_tools, "Mail Listesini Düzenle", self.open_list_editor, "secondary").grid(row=0, column=0, sticky="ew", padx=(0, 6))
         self._button(list_tools, "Dosyayı Yenile", self.refresh_summary, "ghost").grid(row=0, column=1, sticky="ew", padx=(6, 0))
 
-        ttk.Label(parent, text="Gönderim", style="Panel.TLabel", font=_fb(12)).grid(row=7, column=0, columnspan=3, sticky="w", pady=(18, 12))
-        self._spin(parent, "Başlangıç", self.start_index, 8, 0, 100000)
-        self._spin(parent, "Bitiş", self.end_index, 9, 1, 100000)
-        self._spin(parent, "Gecikme sn", self.delay_seconds, 10, 0, 3600, increment=0.5)
+        ttk.Label(parent, text="Gönderim", style="Panel.TLabel", font=_fb(12)).grid(row=8, column=0, columnspan=3, sticky="w", pady=(18, 12))
+        self._spin(parent, "Başlangıç", self.start_index, 9, 0, 100000)
+        self._spin(parent, "Bitiş", self.end_index, 10, 1, 100000)
+        self._spin(parent, "Gecikme sn", self.delay_seconds, 11, 0, 3600, increment=0.5)
 
         buttons = ttk.Frame(parent, style="Panel.TFrame")
-        buttons.grid(row=11, column=0, columnspan=3, sticky="ew", pady=(22, 10))
+        buttons.grid(row=12, column=0, columnspan=3, sticky="ew", pady=(22, 10))
         buttons.columnconfigure(0, weight=1)
         buttons.columnconfigure(1, weight=1)
         self.send_button = self._button(buttons, "Gönderimi Başlat", self.start_sending, "primary")
@@ -309,8 +320,8 @@ class BulkMailDashboard(tk.Tk):
         self.stop_button = self._button(buttons, "Durdur", self.stop_sending, "danger", state="disabled")
         self.stop_button.grid(row=0, column=1, sticky="ew", padx=(6, 0))
 
-        ttk.Label(parent, textvariable=self.status_text, style="Muted.TLabel").grid(row=12, column=0, columnspan=3, sticky="w")
-        ttk.Progressbar(parent, variable=self.progress_value, maximum=100).grid(row=13, column=0, columnspan=3, sticky="ew", pady=(8, 0))
+        ttk.Label(parent, textvariable=self.status_text, style="Muted.TLabel").grid(row=13, column=0, columnspan=3, sticky="w")
+        ttk.Progressbar(parent, variable=self.progress_value, maximum=100).grid(row=14, column=0, columnspan=3, sticky="ew", pady=(8, 0))
 
     def _build_message_panel(self, parent):
         ttk.Label(parent, text="Konu", style="Panel.TLabel", font=_fb(12)).grid(row=0, column=0, sticky="w")
@@ -380,6 +391,72 @@ class BulkMailDashboard(tk.Tk):
     def _spin(self, parent, label, variable, row, from_, to, increment=1):
         ttk.Label(parent, text=label, style="Panel.TLabel").grid(row=row, column=0, sticky="w", pady=6)
         ttk.Spinbox(parent, textvariable=variable, from_=from_, to=to, increment=increment).grid(row=row, column=1, columnspan=2, sticky="ew", pady=6)
+
+    def _portfolio_row(self, parent, row):
+        ttk.Label(parent, text="Portfolyo ekleri", style="Panel.TLabel").grid(row=row, column=0, sticky="nw", pady=6)
+        box = ttk.Frame(parent, style="Panel.TFrame")
+        box.grid(row=row, column=1, columnspan=2, sticky="ew", pady=6)
+        box.columnconfigure(0, weight=1)
+
+        listbox = tk.Listbox(
+            box,
+            height=4,
+            font=_fm(9),
+            bg="#f8fafc",
+            fg="#172033",
+            bd=0,
+            relief="flat",
+            highlightthickness=1,
+            highlightbackground="#d9e2ec",
+            highlightcolor="#176b50",
+            selectbackground="#176b50",
+            selectforeground="#ffffff",
+            activestyle="none",
+            exportselection=False,
+        )
+        listbox.grid(row=0, column=0, sticky="ew")
+        scroll = ttk.Scrollbar(box, orient="vertical", command=listbox.yview, style="Modern.Vertical.TScrollbar")
+        scroll.grid(row=0, column=1, sticky="ns")
+        listbox.configure(yscrollcommand=scroll.set)
+        self.portfolio_listbox = listbox
+
+        actions = ttk.Frame(box, style="Panel.TFrame")
+        actions.grid(row=1, column=0, columnspan=2, sticky="ew", pady=(6, 0))
+        actions.columnconfigure(0, weight=1)
+        actions.columnconfigure(1, weight=1)
+        self._button(actions, "PDF Ekle", self.add_portfolio_file, "ghost").grid(row=0, column=0, sticky="ew", padx=(0, 6))
+        self._button(actions, "Seçileni Sil", self.remove_portfolio_file, "ghost").grid(row=0, column=1, sticky="ew", padx=(6, 0))
+
+        self._refresh_portfolio_list()
+
+    def _refresh_portfolio_list(self):
+        self.portfolio_listbox.delete(0, "end")
+        for path in self.portfolio_files:
+            self.portfolio_listbox.insert("end", os.path.basename(path) or path)
+
+    def add_portfolio_file(self):
+        filenames = filedialog.askopenfilenames(
+            initialdir=BASE_DIR,
+            filetypes=[("PDF files", "*.pdf"), ("All files", "*.*")],
+        )
+        if not filenames:
+            return
+        added = 0
+        for path in filenames:
+            if path not in self.portfolio_files:
+                self.portfolio_files.append(path)
+                added += 1
+        if added:
+            self._refresh_portfolio_list()
+            self.log(f"Portfolyoya {added} dosya eklendi.")
+
+    def remove_portfolio_file(self):
+        selection = self.portfolio_listbox.curselection()
+        if not selection:
+            return
+        for index in reversed(selection):
+            del self.portfolio_files[index]
+        self._refresh_portfolio_list()
 
     def choose_file(self, variable, filetypes):
         filename = filedialog.askopenfilename(initialdir=BASE_DIR, filetypes=filetypes)
@@ -467,6 +544,8 @@ Mail Listesini Düzenle butonuna bas. Açılan pencerede mevcut .txt dosyasını
 CV eki alanından göndermek istediğin PDF dosyasını seç.
 
 CV seçmezsen mail eki gönderilmez. Seçili PDF varsa her mailin ekine otomatik eklenir.
+
+Portfolyo ekleri kısmından birden fazla PDF (portfolyo, sertifika, referans mektubu vb.) ekleyebilirsin. PDF Ekle butonu ile bir veya birden fazla dosya seçebilir, Seçileni Sil butonu ile listeden çıkarabilirsin. CV'den ayrı olarak bu dosyalar da her mailin ekine eklenir.
 
 5. Konu ve mail içeriğini düzenle
 
@@ -617,6 +696,7 @@ Hazırsan Gönderimi Başlat butonuna basabilirsin."""
             "body": self.body_text.get("1.0", "end").strip(),
             "list_file": self.list_file.get().strip(),
             "cv_file": self.cv_file.get().strip(),
+            "portfolio_files": list(self.portfolio_files),
             "start_index": int(self.start_index.get()),
             "end_index": int(self.end_index.get()),
             "delay_seconds": float(self.delay_seconds.get()),
@@ -663,6 +743,9 @@ Hazırsan Gönderimi Başlat butonuna basabilirsin."""
             raise ValueError(f"Başlangıç indeksi ({settings['start_index']}) liste boyutunu aşıyor ({len(recipients)} kayıt).")
         if settings["cv_file"] and not os.path.exists(settings["cv_file"]):
             raise ValueError("CV dosyası bulunamadı.")
+        for path in settings.get("portfolio_files") or []:
+            if not os.path.exists(path):
+                raise ValueError(f"Portfolyo dosyası bulunamadı: {path}")
         if settings["start_index"] < 0 or settings["end_index"] <= settings["start_index"]:
             raise ValueError("Başlangıç ve bitiş aralığı geçersiz.")
 

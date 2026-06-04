@@ -26,17 +26,13 @@ Uygulama ile mail listesi seçebilir, listeyi uygulama içinden düzenleyebilir,
 
 ### Hızlı Kullanım
 
-**Windows** — hazır exe dosyasını çift tıklayarak açın:
-
-```text
-dist/BulkMailDashboard_windows.exe
-```
-
 **macOS** — hazır uygulama paketini çift tıklayarak veya terminal ile açın:
 
 ```bash
 open dist/BulkMailDashboard.app
 ```
+
+**Windows** — repo içinde hazır `.exe` yok. Python kurulu ise [Kaynak Koddan Çalıştırma](#kaynak-koddan-çalıştırma) adımlarını izleyin; tek dosyalık `.exe` istiyorsanız [Build Alma](#build-alma) bölümüne göre kendi `.exe`'nizi oluşturun.
 
 İlk kullanımda:
 
@@ -116,8 +112,7 @@ macOS build scripti otomatik olarak sanal ortam oluşturur, bağımlılıkları 
 ```text
 bulk-email-sender/
 ├── dist/
-│   ├── BulkMailDashboard_windows.exe   # Windows
-│   └── BulkMailDashboard.app      # macOS
+│   └── BulkMailDashboard.app      # macOS (Windows: build locally)
 ├── examples/
 │   └── liste.example.txt
 ├── scripts/
@@ -161,17 +156,13 @@ You can select a recipient list, edit it directly within the app, update the sub
 
 ### Quick Start
 
-**Windows** — double-click the ready-to-use executable:
-
-```text
-dist/BulkMailDashboard_windows.exe
-```
-
 **macOS** — double-click or open from the terminal:
 
 ```bash
 open dist/BulkMailDashboard.app
 ```
+
+**Windows** — no prebuilt `.exe` is shipped in the repo. If Python is installed, follow [Running from Source](#running-from-source); to produce a single-file `.exe`, see [Building](#building).
 
 First-time setup:
 
@@ -251,8 +242,7 @@ The macOS build script automatically creates a virtual environment, installs dep
 ```text
 bulk-email-sender/
 ├── dist/
-│   ├── BulkMailDashboard_windows.exe   # Windows
-│   └── BulkMailDashboard.app      # macOS
+│   └── BulkMailDashboard.app      # macOS (Windows: build locally)
 ├── examples/
 │   └── liste.example.txt
 ├── scripts/
